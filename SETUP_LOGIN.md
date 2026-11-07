@@ -41,4 +41,4 @@ El script la copia al portapapeles privado; límpialo tras pegarla en el login. 
 
 `node scripts/verify-demo.mjs` ejerce los permisos con sesiones reales, incluyendo denegaciones. Las cuentas Komerizo no provocan perfiles turísticos y el trigger existente no fue modificado.
 
-URL: https://komerizo-demo.vercel.app. Vercel Authentication sigue siendo una puerta adicional; accede con una cuenta autorizada antes de introducir las credenciales de la aplicación. No se generaron enlaces de bypass ni se amplió la protección.
+URL: https://komerizo-demo.vercel.app. La URL principal devuelve HTTP 200 sin sesión Vercel. El dominio específico del despliegue redirige a Vercel SSO (HTTP 302), conservando la configuración existente `all_except_custom_domains`. No se generaron enlaces de bypass ni se amplió la protección.

@@ -2,7 +2,7 @@
 
 Repositorio: https://github.com/IngenieroCui/komerizo
 
-Aplicación: https://komerizo-demo.vercel.app. Conserva Vercel Authentication: primero accede con una cuenta autorizada de Vercel y después con una cuenta de evaluación de la aplicación.
+Aplicación: https://komerizo-demo.vercel.app. Su login devuelve HTTP 200 sin sesión Vercel; el dominio específico de cada despliegue conserva Vercel Authentication y redirige a SSO (HTTP 302). Se mantuvo la configuración existente `all_except_custom_domains`. Inicia sesión en la aplicación con una cuenta de evaluación.
 
 | Correo | Rol |
 | --- | --- |
@@ -53,6 +53,8 @@ Las cuentas nuevas llevan `app_metadata.application=komerizo`. El trigger existe
 
 `npm run build` y TypeScript pasaron. `node scripts/verify-demo.mjs` verifica login, renovación y salida de los tres roles; escritura/actualización del secretario; lectura persistida por el presidente; rechazo de promoción a Administrador y de modificación del vínculo Auth (`42501`); rechazo de lectura anónima. El informe sin secretos queda en `.private/verification.json`.
 
-El flujo principal habilitado es autenticación, paneles, consultas de personas/catálogos y reuniones. Los módulos financieros, ventas, inventario, salón, informes y trámites extensos conservan pantallas heredadas y **no se consideran implementados ni verificados** en esta demo; no se instalaron sus esquemas incompletos. El alta de cuentas y asignación de roles se realizan por el canal administrativo privado; el formulario de personas administra registros de negocio.
+El flujo principal habilitado es autenticación, paneles, consultas de personas/catálogos y reuniones. Los módulos financieros, ventas, inventario, salón, informes y trámites extensos conservan pantallas heredadas y **no se consideran implementados ni verificados** en esta demo; no se instalaron sus esquemas incompletos. El alta de cuentas y asignación de roles de la demo se realizan por el canal administrativo privado; el formulario de personas administra registros de negocio.
 
 El navegador recibe solo URL y clave pública de Supabase. Nunca se configura la clave administrativa en `NEXT_PUBLIC_*`. No se habilitó registro público ni Google desde la aplicación. Para publicar la URL, el propietario debe cambiar explícitamente Deployment Protection en Vercel; no se generaron enlaces de bypass.
+
+Verificación en producción: login del secretario, consulta de las tres reuniones, actualización de la reunión ID 3 a `confirmada` desde la interfaz y cierre de sesión. La reunión fue creada desde el formulario y comprobada tras recargar; se corrigió la captura de fecha y su visualización local. Los tres paneles de rol también se verificaron en navegador.
