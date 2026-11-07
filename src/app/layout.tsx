@@ -112,6 +112,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
+          <aside role="note" style={{ padding: '12px 20px', textAlign: 'center', background: '#eef2ff', color: '#312e81' }}>
+            Interfaz de demostración · Base de Komerizo pendiente de habilitación · No uses datos ni credenciales reales.
+          </aside>
+        )}
         <AuthProvider>
           {children}
         </AuthProvider>

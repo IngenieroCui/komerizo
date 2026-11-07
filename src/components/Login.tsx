@@ -15,6 +15,10 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+      setError('Esta entrega muestra sólo la interfaz. La base de Komerizo está pendiente de corrección; no ingreses credenciales reales.')
+      return
+    }
     setLoading(true)
     setMessage('')
     setError('')

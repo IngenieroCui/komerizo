@@ -10,3 +10,7 @@
   del propietario, con tablas diferenciadas por prefijo.
 - La autenticación heredada se conserva para esta fase de migración; no deben
   cargarse usuarios, contraseñas ni información personal reales en la demo.
+
+Entrega actual: interfaz pública con inicio de sesión deshabilitado en modo demo.
+La base de Komerizo no se instaló, por decisión del propietario tras el rechazo
+de la migración heredada. Turismo mantiene únicamente su propio esquema.
