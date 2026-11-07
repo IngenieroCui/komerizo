@@ -1,4 +1,5 @@
-'use client';
+'use client'
+import { getSerializedProfile } from '@/lib/session';
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -56,7 +57,7 @@ export default function UsuarioEventosPage() {
       try {
         setLoading(true);
 
-        const storedUser = localStorage.getItem('komerizo_user');
+        const storedUser = await getSerializedProfile();
         if (!storedUser) {
           console.error('No hay usuario en sesión');
           return;
@@ -122,7 +123,7 @@ export default function UsuarioEventosPage() {
   const loadReuniones = async (userId: number, roleIds: number[]) => {
     try {
       // Obtener comuna y barrio del usuario
-      const storedUser = localStorage.getItem('komerizo_user');
+      const storedUser = await getSerializedProfile();
       let comunaId = null;
       let barrioId = null;
 
@@ -216,7 +217,7 @@ export default function UsuarioEventosPage() {
   // Confirmar asistencia
   const handleConfirmar = async (reunionId: number) => {
     try {
-      const storedUser = localStorage.getItem('komerizo_user');
+      const storedUser = await getSerializedProfile();
       if (!storedUser) return;
 
       const user = JSON.parse(storedUser);
@@ -259,7 +260,7 @@ export default function UsuarioEventosPage() {
   // Rechazar asistencia
   const handleRechazar = async (reunionId: number) => {
     try {
-      const storedUser = localStorage.getItem('komerizo_user');
+      const storedUser = await getSerializedProfile();
       if (!storedUser) return;
 
       const user = JSON.parse(storedUser);

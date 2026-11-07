@@ -15,7 +15,6 @@ type Usuario = {
   tipo_documento_id?: number
   comuna_id?: number | null
   barrio_id?: number | null
-  contrasena?: string
   roles?: Array<{ id: number; nombre: string }>
 }
 
@@ -178,10 +177,7 @@ export default function UserFormModal({
       newErrors.apellido = 'Apellido es requerido'
     }
 
-    // Si es nuevo usuario, validar contraseña
-    if (!usuario && !formData.contrasena) {
-      newErrors.contrasena = 'Contraseña es requerida'
-    }
+
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -203,7 +199,6 @@ export default function UserFormModal({
           cc: formData.cc,
           nombre: formData.nombre,
           apellido: formData.apellido,
-          correo_electronico: formData.correo_electronico || null,
           telefono: formData.telefono || null,
           estado: formData.estado,
           tipo_documento_id: formData.tipo_documento_id,
@@ -211,10 +206,7 @@ export default function UserFormModal({
           barrio_id: formData.barrio_id || null,
         }
 
-        // Solo actualizar contraseña si se proporciona una nueva
-        if (formData.contrasena && formData.contrasena.trim()) {
-          updateData.contrasena = formData.contrasena
-        }
+
 
         const { error } = await supabase
           .from('komerizo_usuarios')
@@ -223,26 +215,6 @@ export default function UserFormModal({
 
         if (error) throw error
 
-        // Actualizar roles
-        if (usuario.id) {
-          // Eliminar roles actuales
-          await supabase
-            .from('komerizo_usuario_roles')
-            .delete()
-            .eq('usuario_id', usuario.id)
-
-          // Agregar nuevos roles
-          if (selectedRoles.length > 0) {
-            const rolesToInsert = selectedRoles.map((rolId) => ({
-              usuario_id: usuario.id,
-              rol_id: rolId,
-            }))
-
-            await supabase
-              .from('komerizo_usuario_roles')
-              .insert(rolesToInsert)
-          }
-        }
       } else {
         // Crear nuevo usuario
         const usuarioData: any = {
@@ -253,7 +225,6 @@ export default function UserFormModal({
           correo_electronico: formData.correo_electronico || null,
           telefono: formData.telefono || null,
           estado: formData.estado,
-          contrasena: formData.contrasena,
         }
 
         // Si es Secretario, fuerza su Comuna y Barrio
@@ -272,17 +243,7 @@ export default function UserFormModal({
 
         if (error) throw error
 
-        // Asignar roles
-        if (nuevoUsuario && nuevoUsuario[0] && selectedRoles.length > 0) {
-          const rolesToInsert = selectedRoles.map((rolId) => ({
-            usuario_id: nuevoUsuario[0].id,
-            rol_id: rolId,
-          }))
 
-          await supabase
-            .from('komerizo_usuario_roles')
-            .insert(rolesToInsert)
-        }
       }
 
       onSave()
@@ -481,73 +442,7 @@ export default function UserFormModal({
             )}
           </div>
 
-          {!usuario && (
-            <div className="form-group">
-              <label htmlFor="contrasena">Contraseña *</label>
-              <input
-                id="contrasena"
-                type="password"
-                value={formData.contrasena || ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    contrasena: e.target.value,
-                  })
-                }
-                placeholder="Contraseña"
-                minLength={6}
-              />
-              {errors.contrasena && (
-                <span className="error">{errors.contrasena}</span>
-              )}
-            </div>
-          )}
-
-          {usuario && (
-            <div className="form-group">
-              <label htmlFor="contrasena">Cambiar Contraseña</label>
-              <input
-                id="contrasena"
-                type="password"
-                value={formData.contrasena || ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    contrasena: e.target.value,
-                  })
-                }
-                placeholder="Dejar en blanco para mantener la contraseña actual"
-                minLength={6}
-              />
-              <small style={{ color: '#64748b', marginTop: '0.25rem', display: 'block' }}>
-                Dejar en blanco mantiene la contraseña actual
-              </small>
-            </div>
-          )}
-
-          <div className="form-group">
-            <label>Roles</label>
-            <div className="roles-checkboxes">
-              {roles
-                .filter((role) => {
-                  // Si es Secretario, filtrar roles que puede asignar
-                  if (isSecretario) {
-                    return role.nombre !== 'Administrador'
-                  }
-                  return true
-                })
-                .map((role) => (
-                  <label key={role.id} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={selectedRoles.includes(role.id)}
-                      onChange={() => handleRoleToggle(role.id)}
-                    />
-                    <span>{role.nombre}</span>
-                  </label>
-                ))}
-            </div>
-          </div>
+          <p>Los registros de personas no crean cuentas de acceso. Las cuentas se administran por el canal privado de Supabase Auth.</p>
 
           <div className="modal-footer">
             <button

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getRedirectUrlByRole } from '@/lib/roleRedirect'
+import { getCurrentProfile } from '@/lib/session'
 import Footer from './Footer'
 import './Login.css'
 
@@ -16,7 +17,7 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
-      setError('Esta entrega muestra sólo la interfaz. La base de Komerizo está pendiente de corrección; no ingreses credenciales reales.')
+      setError('El acceso está temporalmente desactivado. Contacta al administrador.')
       return
     }
     setLoading(true)
@@ -24,114 +25,14 @@ export default function Login() {
     setError('')
 
     try {
-      // Buscar usuario por CC o correo
-      let query = supabase
-        .from('komerizo_usuarios')
-        .select('*')
-
-      // Determinar si es CC o correo
-      if (identifier.includes('@')) {
-        query = query.eq('correo_electronico', identifier)
-      } else {
-        query = query.eq('cc', identifier)
-      }
-
-      const { data: usuarios, error: fetchError } = await query
-
-      if (fetchError) throw fetchError
-      if (!usuarios || usuarios.length === 0) {
-        setError('CC o correo no encontrado')
-        setLoading(false)
-        return
-      }
-
-      const usuario = usuarios[0]
-
-      // Obtener las relaciones usuario-rol
-      const { data: usuarioRolesData, error: relationError } = await supabase
-        .from('komerizo_usuario_roles')
-        .select('rol_id')
-        .eq('usuario_id', usuario.id)
-
-      console.log('usuarioRolesData:', usuarioRolesData)
-      console.log('relationError:', relationError)
-
-      if (relationError) {
-        console.error('Error al obtener relaciones:', relationError)
-      }
-
-      // Obtener los IDs de roles
-      const roleIds = usuarioRolesData?.map((rel: any) => rel.rol_id) || []
-      console.log('roleIds extraídos:', roleIds)
-
-      // Obtener información de los roles
-      let usuarioRoles: Array<{ id: number; nombre: string }> = []
-      if (roleIds.length > 0) {
-        const { data: rolesData, error: rolesError } = await supabase
-          .from('komerizo_roles')
-          .select('id, nombre')
-          .in('id', roleIds)
-
-        console.log('rolesData:', rolesData)
-        console.log('rolesError:', rolesError)
-
-        if (rolesError) {
-          console.error('Error al obtener roles:', rolesError)
-        } else {
-          usuarioRoles = rolesData || []
-        }
-      } else {
-        console.log('No hay roleIds para buscar')
-      }
-
-      console.log('Roles obtenidos de la BD:', usuarioRoles)
-
-      // Verificar contraseña (nota: en producción usar hash bcrypt o similar)
-      if (usuario.contrasena !== password) {
-        setError('Contraseña incorrecta')
-        setLoading(false)
-        return
-      }
-
-      // Verificar estado
-      if (usuario.estado !== 'activo') {
-        setError(`Usuario ${usuario.estado}`)
-        setLoading(false)
-        return
-      }
-
-      // Guardar sesión en localStorage
-      const userForStorage = {
-        id: usuario.id,
-        cc: usuario.cc,
-        nombre: usuario.nombre,
-        apellido: usuario.apellido,
-        correo_electronico: usuario.correo_electronico,
-        telefono: usuario.telefono,
-        direccion: usuario.direccion,
-        jac: usuario.jac,
-        firma: usuario.firma,
-        estado: usuario.estado,
-        comuna_id: usuario.comuna_id,
-        barrio_id: usuario.barrio_id,
-        roles: usuarioRoles,
-      }
-
-      console.log('Usuario para storage:', userForStorage)
-      console.log('Roles del usuario:', userForStorage.roles)
-
-      localStorage.setItem('komerizo_user', JSON.stringify(userForStorage))
-      setMessage('¡Inicio de sesión exitoso!')
-
-      // Determinar URL de redirección según el rol
-      const redirectUrl = getRedirectUrlByRole(userForStorage.roles)
-      console.log('URL de redirección calculada:', redirectUrl)
-
-      // Redirigir después de 500ms
-      setTimeout(() => {
-        console.log('Redirigiendo a:', redirectUrl)
-        window.location.href = redirectUrl
-      }, 500)
+      const { error: authError } = await supabase.auth.signInWithPassword({ email: identifier.trim().toLowerCase(), password })
+      if (authError) throw new Error('Correo o contraseña incorrectos.')
+      let profile
+      try { profile = await getCurrentProfile() }
+      catch (error) { await supabase.auth.signOut(); throw error }
+      if (!profile) throw new Error('No se pudo recuperar la sesión.')
+      setPassword('')
+      window.location.assign(getRedirectUrlByRole(profile.roles))
     } catch (error: any) {
       console.error('Error al iniciar sesión:', error)
       setError(error.message || 'Ocurrió un error al iniciar sesión')
@@ -143,18 +44,18 @@ export default function Login() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">🔐 komirezo</h1>
+        <h1 className="login-title">🔐 Komerizo</h1>
         <p className="login-subtitle">Plataforma de Gestión de Comunales</p>
 
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
-            <label htmlFor="identifier">📧 CC</label>
+            <label htmlFor="identifier">📧 Correo electrónico</label>
             <input
               id="identifier"
-              type="text"
+              type="email"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="1234567890 o tu@email.com"
+              placeholder="tu@email.com"
               required
               disabled={loading}
             />

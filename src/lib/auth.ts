@@ -1,10 +1,7 @@
 import { supabase } from './supabase'
+import { getCurrentProfile } from './session'
 
-/**
- * IMPORTANTE: Para PRODUCCIÓN, usar bcrypt en lugar de comparación directa
- * Este es un ejemplo básico. Instala: npm install bcrypt
- * Luego usa: import bcrypt from 'bcrypt'
- */
+// Authentication and password changes are handled exclusively by Supabase Auth.
 
 // Función para crear un usuario en komerizo_usuarios
 export async function crearUsuario(usuarioData: {
@@ -13,7 +10,6 @@ export async function crearUsuario(usuarioData: {
   nombre: string
   apellido: string
   correo_electronico: string
-  contrasena: string
   telefono?: string
   direccion?: string
   comuna_id?: number
@@ -25,58 +21,7 @@ export async function crearUsuario(usuarioData: {
   observaciones?: string
   roles?: number[] // IDs de roles
 }) {
-  try {
-    // Crear usuario
-    const { data: usuario, error: errorUsuario } = await supabase
-      .from('komerizo_usuarios')
-      .insert([
-        {
-          cc: usuarioData.cc,
-          tipo_documento_id: usuarioData.tipo_documento_id,
-          nombre: usuarioData.nombre,
-          apellido: usuarioData.apellido,
-          correo_electronico: usuarioData.correo_electronico,
-          contrasena: usuarioData.contrasena, // En producción, usar hash
-          telefono: usuarioData.telefono,
-          direccion: usuarioData.direccion,
-          comuna_id: usuarioData.comuna_id,
-          barrio_id: usuarioData.barrio_id,
-          jac: usuarioData.jac,
-          fecha_nacimiento: usuarioData.fecha_nacimiento,
-          comision_trabajo_id: usuarioData.comision_trabajo_id,
-          constancia_no_pertenecer_otra_jac:
-            usuarioData.constancia_no_pertenecer_otra_jac,
-          observaciones: usuarioData.observaciones,
-          estado: 'activo',
-        },
-      ])
-      .select()
-
-    if (errorUsuario) throw errorUsuario
-    if (!usuario || usuario.length === 0)
-      throw new Error('Error al crear usuario')
-
-    const usuarioId = usuario[0].id
-
-    // Asignar roles si existen
-    if (usuarioData.roles && usuarioData.roles.length > 0) {
-      const rolesData = usuarioData.roles.map((rolId) => ({
-        usuario_id: usuarioId,
-        rol_id: rolId,
-      }))
-
-      const { error: errorRoles } = await supabase
-        .from('komerizo_usuario_roles')
-        .insert(rolesData)
-
-      if (errorRoles) throw errorRoles
-    }
-
-    return { success: true, usuario }
-  } catch (error: any) {
-    console.error('Error creando usuario:', error)
-    return { success: false, error: error.message }
-  }
+  return { success: false, error: 'Las cuentas se crean con Supabase Auth Admin desde un entorno privado.' }
 }
 
 // Función para actualizar usuario
@@ -87,7 +32,7 @@ export async function actualizarUsuario(
   try {
     const { data, error } = await supabase
       .from('komerizo_usuarios')
-      .update(updateData)
+      .update(Object.fromEntries(Object.entries(updateData).filter(([key]) => !['contrasena', 'auth_user_id', 'roles'].includes(key))))
       .eq('id', usuarioId)
       .select()
 
@@ -122,13 +67,9 @@ export async function cambiarContrasena(
   contrasenaNueva: string
 ) {
   try {
-    // En producción, usar hash
-    const { data, error } = await supabase
-      .from('komerizo_usuarios')
-      .update({ contrasena: contrasenaNueva })
-      .eq('id', usuarioId)
-      .select()
-
+    const profile = await getCurrentProfile()
+    if (profile?.id !== usuarioId) throw new Error('Solo puedes cambiar tu propia contraseña.')
+    const { error } = await supabase.auth.updateUser({ password: contrasenaNueva })
     if (error) throw error
     return { success: true }
   } catch (error: any) {

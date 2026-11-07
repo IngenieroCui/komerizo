@@ -64,6 +64,7 @@ export default function AdministradorDashboard() {
     <div className="administrador-dashboard">
       <div className="dashboard-header">
         <h1>Panel de Administración</h1>
+      <p><a href="/administrador/reuniones">Abrir reuniones de la comunidad</a></p>
         <p>Gestión integral del sistema</p>
       </div>
 

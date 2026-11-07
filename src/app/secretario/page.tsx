@@ -87,6 +87,7 @@ export default function SecretarioDashboard() {
   return (
     <div className="secretario-dashboard">
       <h1>Panel de Control - Secretario</h1>
+      <p><a href="/secretario/reuniones">Abrir reuniones de la comunidad</a></p>
 
       <div className="welcome-section">
         <p>

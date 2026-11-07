@@ -57,9 +57,7 @@ export default function UsuarioSidebar({ user }: { user: any }) {
 
         if (rolesData) {
           setUserRoles(rolesData)
-          // Actualizar en localStorage
-          const updatedUser = { ...user, roles: rolesData }
-          localStorage.setItem('komerizo_user', JSON.stringify(updatedUser))
+
         }
       }
     } catch (error) {
@@ -76,8 +74,7 @@ export default function UsuarioSidebar({ user }: { user: any }) {
 
   const handleRoleChange = (roleNombre: string) => {
     console.log('🔄 [UsuarioSidebar] handleRoleChange:', roleNombre)
-    const updatedUser = { ...user, activeRole: roleNombre }
-    localStorage.setItem('komerizo_user', JSON.stringify(updatedUser))
+
 
     const redirectUrl = getRedirectUrlByRole([{ id: 0, nombre: roleNombre }])
     console.log('🔄 [UsuarioSidebar] Redirect URL:', redirectUrl)

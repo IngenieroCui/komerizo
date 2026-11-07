@@ -34,11 +34,11 @@ export default function TesoreroSidebar({ user }: { user: any }) {
     const ids = relations?.map((relation: any) => relation.rol_id) || []
     if (!ids.length) return
     const { data: roles } = await supabase.from('komerizo_roles').select('id,nombre').in('id', ids).order('nombre')
-    if (roles) { setUserRoles(roles); localStorage.setItem('komerizo_user', JSON.stringify({ ...user, roles })) }
+    if (roles) setUserRoles(roles)
   }
   const isActive = (href: string) => href === '/tesorero' ? pathname === href : pathname.startsWith(href)
   const handleRoleChange = (roleNombre: string) => {
-    localStorage.setItem('komerizo_user', JSON.stringify({ ...user, activeRole: roleNombre }))
+    void 0
     const redirectUrl = getRedirectUrlByRole([{ id: 0, nombre: roleNombre }])
     setShowRoleDropdown(false)
     if (redirectUrl) window.location.href = redirectUrl

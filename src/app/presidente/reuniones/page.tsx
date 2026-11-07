@@ -1,4 +1,5 @@
-'use client';
+'use client'
+import { getSerializedProfile } from '@/lib/session';
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -76,7 +77,7 @@ export default function PresidenteReuniones() {
         setLoading(true);
 
         // Obtener usuario del localStorage
-        const storedUser = localStorage.getItem('komerizo_user');
+        const storedUser = await getSerializedProfile();
         if (!storedUser) {
           console.error('No hay usuario en sesión');
           return;
@@ -178,9 +179,11 @@ export default function PresidenteReuniones() {
   // Crear nueva reunión
   const handleCrearReunion = async (e: React.FormEvent) => {
     e.preventDefault();
+    const submittedDate = String(new FormData(e.currentTarget as HTMLFormElement).get('fecha_reunion') || formData.fecha_reunion);
+    if (!submittedDate) { alert('Selecciona la fecha de la reunión.'); return; }
 
     try {
-      const storedUser = localStorage.getItem('komerizo_user');
+      const storedUser = await getSerializedProfile();
       if (!storedUser) {
         alert('No hay usuario en sesión');
         return;
@@ -201,9 +204,9 @@ export default function PresidenteReuniones() {
         descripcion: formData.descripcion,
         tipo_reunion: formData.tipo_reunion,
         lugar: formData.lugar,
-        fecha_reunion: formData.fecha_reunion,
-        hora_inicio: formData.hora_inicio,
-        hora_fin: formData.hora_fin,
+        fecha_reunion: submittedDate,
+        hora_inicio: formData.hora_inicio || null,
+        hora_fin: formData.hora_fin || null,
         es_obligatoria: formData.es_obligatoria,
         requiere_confirmacion: formData.requiere_confirmacion,
         roles_invitados: formData.roles_invitados,
@@ -287,7 +290,7 @@ export default function PresidenteReuniones() {
         <div className="reunion-meta">
           <div className="meta-item">
             <span className="meta-icon">📅</span>
-            {new Date(reunion.fecha_reunion).toLocaleDateString('es-ES', {
+            {new Date(reunion.fecha_reunion + 'T12:00:00').toLocaleDateString('es-ES', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
@@ -380,7 +383,7 @@ export default function PresidenteReuniones() {
           <h1>Reuniones</h1>
           <p className="header-subtitle">Gestiona las reuniones, juntas y eventos</p>
         </div>
-        <button className="btn-nueva-reunion" onClick={() => setShowForm(true)}>
+        <button hidden className="btn-nueva-reunion" onClick={() => setShowForm(true)}>
           ➕ Nueva Reunión
         </button>
       </div>
@@ -508,6 +511,7 @@ export default function PresidenteReuniones() {
                 <input
                   type="date"
                   className="form-input"
+                  name="fecha_reunion"
                   value={formData.fecha_reunion}
                   onChange={(e) => setFormData({ ...formData, fecha_reunion: e.target.value })}
                   required

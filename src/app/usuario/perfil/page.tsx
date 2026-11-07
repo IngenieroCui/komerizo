@@ -90,7 +90,7 @@ export default function UsuarioPerfil() {
         apellido: usuarioData.apellido || '',
         correo_electronico: usuarioData.correo_electronico || '',
         telefono: usuarioData.telefono || '',
-        contraseña: usuarioData.contrasena || '',
+        contraseña: '',
         direccion: usuarioData.direccion || '',
         estado: usuarioData.estado || '',
         tipo_documento: tipoDocumento,
@@ -121,7 +121,7 @@ export default function UsuarioPerfil() {
       if (!user?.id) return
 
       const updateData: any = {
-        correo_electronico: editData.correo_electronico || null,
+
         telefono: editData.telefono || null,
         direccion: editData.direccion || null,
       }
@@ -132,7 +132,8 @@ export default function UsuarioPerfil() {
           setMessage({ type: 'error', text: 'La contraseña debe tener al menos 6 caracteres' })
           return
         }
-        updateData.contrasena = editData.contraseña
+        const { error: passwordError } = await supabase.auth.updateUser({ password: editData.contraseña })
+        if (passwordError) throw passwordError
       }
 
       const { error } = await supabase
@@ -145,7 +146,7 @@ export default function UsuarioPerfil() {
       // Actualizar datos en localStorage si cambió correo
       if (editData.correo_electronico !== perfil?.correo_electronico) {
         const updatedUser = { ...user, email: editData.correo_electronico }
-        localStorage.setItem('komerizo_user', JSON.stringify(updatedUser))
+        void 0
       }
 
       setMessage({ type: 'success', text: 'Perfil actualizado exitosamente' })

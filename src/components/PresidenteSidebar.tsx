@@ -64,9 +64,7 @@ export default function PresidenteSidebar({ user }: { user: any }) {
 
         if (rolesData) {
           setUserRoles(rolesData)
-          // Actualizar en localStorage
-          const updatedUser = { ...user, roles: rolesData }
-          localStorage.setItem('komerizo_user', JSON.stringify(updatedUser))
+
         }
       }
     } catch (error) {
@@ -82,9 +80,7 @@ export default function PresidenteSidebar({ user }: { user: any }) {
   }
 
   const handleRoleChange = (roleNombre: string) => {
-    // Guardar el rol seleccionado en localStorage
-    const updatedUser = { ...user, activeRole: roleNombre }
-    localStorage.setItem('komerizo_user', JSON.stringify(updatedUser))
+
 
     // Redirigir al dashboard del nuevo rol
     const redirectUrl = getRedirectUrlByRole([{ id: 0, nombre: roleNombre }])

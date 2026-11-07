@@ -1,4 +1,5 @@
-'use client';
+'use client'
+import { getSerializedProfile } from '@/lib/session';
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -183,7 +184,7 @@ export default function TesoreroInventarioPage() {
     try {
       setLoading(true);
 
-      const storedUser = localStorage.getItem('komerizo_user');
+      const storedUser = await getSerializedProfile();
       if (!storedUser) return;
 
       const user = JSON.parse(storedUser);

@@ -79,8 +79,8 @@ export default function JuntaDirectivaSidebar({ user }: { user: any }) {
 
         if (rolesData) {
           setUserRoles(rolesData)
-          // Guardar en localStorage también
-          localStorage.setItem('userRoles', JSON.stringify(rolesData))
+
+          void 0
         }
       }
     } catch (error) {

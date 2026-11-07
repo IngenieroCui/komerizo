@@ -52,6 +52,7 @@ export default function PresidenteDashboardPage() {
     <div className="presidente-container">
       <div className="presidente-header">
         <h1>👑 Dashboard Presidente</h1>
+      <p><a href="/presidente/reuniones">Abrir reuniones de la comunidad</a></p>
         <p className="header-subtitle">Bienvenido(a), {user?.nombre}</p>
       </div>
 

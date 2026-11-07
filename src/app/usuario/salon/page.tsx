@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-asserted-optional-chain */
 'use client';
+import { getSerializedProfile } from '@/lib/session'
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -129,7 +130,7 @@ export default function UsuarioSalonPage() {
     try {
       setLoading(true);
 
-      const storedUser = localStorage.getItem('komerizo_user');
+      const storedUser = await getSerializedProfile();
       if (!storedUser) return;
 
       const userData = JSON.parse(storedUser);

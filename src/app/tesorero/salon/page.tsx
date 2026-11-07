@@ -1,4 +1,5 @@
-'use client';
+'use client'
+import { getSerializedProfile } from '@/lib/session';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
@@ -65,7 +66,7 @@ export default function TesoreroSalonPage() {
     try {
       setLoading(true);
 
-      const storedUser = localStorage.getItem('komerizo_user');
+      const storedUser = await getSerializedProfile();
       if (!storedUser) return;
 
       const userData = JSON.parse(storedUser);
